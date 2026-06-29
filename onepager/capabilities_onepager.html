@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI/BI Dashboards - Interactive Capabilities at a Glance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0b1a20; --navy2:#13262e; --panel:#15282f; --panel-line:#2a4049;
+    --oat:#EEEDE9; --muted:#9fb3ba; --lava:#FF3621; --teal:#2DB6C9; --white:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"DM Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:#06121a; color:var(--oat);
+    display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px;
+  }
+  /* 16:9 one-pager that scales to the window */
+  .page{
+    width:min(96vw, calc(96vh * 16/9)); aspect-ratio:16/9;
+    background:radial-gradient(1200px 700px at 18% -10%, #1a3640 0%, var(--navy2) 42%, var(--navy) 100%);
+    border:1px solid var(--panel-line); border-radius:16px; overflow:hidden;
+    display:flex; flex-direction:column; padding:3.0% 3.2%;
+    box-shadow:0 30px 80px rgba(0,0,0,.45);
+  }
+  header{display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:1.4%}
+  .eyebrow{font-size:.72rem; letter-spacing:.22em; font-weight:700; color:var(--lava); text-transform:uppercase}
+  .eyebrow::before{content:""; display:inline-block; width:26px; height:2px; background:var(--lava); vertical-align:middle; margin-right:10px; transform:translateY(-3px)}
+  h1{font-size:clamp(1.3rem,2.5vw,2.35rem); font-weight:700; line-height:1.05; margin-top:.35rem; color:var(--white)}
+  h1 em{font-style:italic; color:var(--lava); font-weight:700}
+  .sub{font-size:clamp(.7rem,1vw,.92rem); color:var(--muted); margin-top:.45rem; max-width:48ch}
+  .brand{font-size:.78rem; font-weight:700; letter-spacing:.04em; color:var(--oat); white-space:nowrap; opacity:.85}
+  .brand .dot{color:var(--lava)}
+  .grid{flex:1; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); gap:1.05%; margin-top:.6%}
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02));
+    border:1px solid var(--panel-line); border-radius:12px; padding:3.1% 3.2%;
+    display:flex; flex-direction:column; gap:.32rem; position:relative; overflow:hidden;
+  }
+  .card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--lava); opacity:.85}
+  .ic{width:30px; height:30px; color:var(--teal); margin-bottom:.15rem}
+  .ic svg{width:100%; height:100%; display:block}
+  .name{font-size:clamp(.82rem,1.18vw,1.06rem); font-weight:700; color:var(--white); line-height:1.1}
+  .what{font-size:clamp(.62rem,.86vw,.82rem); color:#cdd8db; line-height:1.28}
+  .use{font-size:clamp(.6rem,.82vw,.78rem); color:var(--muted); line-height:1.25; margin-top:auto}
+  .use b{color:var(--teal); font-weight:500; font-style:italic}
+  footer{margin-top:1.3%; font-size:clamp(.62rem,.85vw,.82rem); color:var(--muted); display:flex; align-items:center; gap:10px}
+  footer .pill{display:inline-block; width:8px; height:8px; background:var(--lava); border-radius:2px}
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="eyebrow">SelectHealth AI/BI Workshop</div>
+        <h1>AI/BI Dashboards: Interactive Capabilities <em>at a glance</em></h1>
+        <div class="sub">Nine capabilities that make AI/BI a serious analytics surface, with a healthcare lens.</div>
+      </div>
+      <div class="brand">databricks<span class="dot">.</span></div>
+    </header>
+
+    <div class="grid">
+      <!-- 1 Cross-Filtering -->
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg></div>
+        <div class="name">Cross-Filtering</div>
+        <div class="what">Click any chart and every visual filters to your selection. No SQL.</div>
+        <div class="use"><b>Use:</b> trace a spike from region to root cause in seconds.</div>
+      </div>
+      <!-- 2 Drilling -->
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/><path d="M12 6v12"/></svg></div>
+        <div class="name">Drilling</div>
+        <div class="what">Move from summary to detail within the same dashboard.</div>
+        <div class="use"><b>Use:</b> region to facility to provider, no new query.</div>
+      </div>
+      <!-- 3 Forecasting & AI Functions -->
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 6-7"/><path d="M16 6h4v4"/></svg></div>
+        <div class="name">Forecasting &amp; AI Functions</div>
+        <div class="what">Built-in ML and GenAI in SQL: ai_forecast, ai_query, ai_classify.</div>
+        <div class="use"><b>Use:</b> project readmission volume; classify or summarize notes.</div>
+      </div>
+      <!-- 4 Calculated Dimensions & Measures -->
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5c-2 0-2 14-4 14M9 9h7M5 19h2"/></svg></div>
+        <div class="name">Calculated Dimensions &amp; Measures</div>
+        <div class="what">Formula-based fields and metrics that react to filters automatically.</div>
+        <div class="use"><b>Use:</b> paid-to-charge ratio, age bands, risk tiers.</div>
+      </div>
+      <!-- 5 Rich Interactive Visuals -->
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M9 20V4M14 20v-7M19 20v-11"/></svg></div>
+        <div class="name">Rich Interactive Visuals</div>
+        <div class="what">Combo, heatmap, scatter, maps, pivots, counters, and more.</div>
+        <div class="use"><b>Use:</b> provider scorecards and complication-rate heatmaps.</div>
+      </div>
+      <!-- 6 Multipage Reporting -->
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="12" height="14" rx="1.5"/><path d="M8 8h4M8 11h4"/><path d="M8 2h10a2 2 0 0 1 2 2v14"/></svg></div>
+        <div class="name">Multipage Reporting</div>
+        <div class="what">Structure one dashboard into multiple pages or tabs.</div>
+        <div class="use"><b>Use:</b> Overview, Provider Performance, and Geography views.</div>
+      </div>
+      <!-- 7 Parameterized Widgets -->
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h10M18 8h2M4 16h2M10 16h10"/><circle cx="16" cy="8" r="2.3"/><circle cx="8" cy="16" r="2.3"/></svg></div>
+        <div class="name">Parameterized Widgets</div>
+        <div class="what">No-code dropdowns, date pickers, and inputs that change the query.</div>
+        <div class="use"><b>Use:</b> set a minimum-encounter threshold on the fly.</div>
+      </div>
+      <!-- 8 Themes -->
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2s-.6-1.5 0-2 2 0 3-1a4 4 0 0 0-1-9z"/><circle cx="8.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="15.5" cy="10.5" r="1"/></svg></div>
+        <div class="name">Themes</div>
+        <div class="what">Governed colors, fonts, and layout for a consistent, branded look.</div>
+        <div class="use"><b>Use:</b> a polished, on-brand dashboard for sharing.</div>
+      </div>
+      <!-- 9 Ask Genie -->
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v10H9l-4 4z"/><path d="M9 10h.01M12.5 10h.01M16 10h.01"/></svg></div>
+        <div class="name">Ask Genie</div>
+        <div class="what">Ask natural-language questions inside the dashboard, with the SQL shown.</div>
+        <div class="use"><b>Use:</b> "readmissions by facility this quarter."</div>
+      </div>
+    </div>
+
+    <footer><span class="pill"></span> Everything here runs on governed data already in Databricks. No extracts, no separate BI server.</footer>
+  </div>
+</body>
+</html>
