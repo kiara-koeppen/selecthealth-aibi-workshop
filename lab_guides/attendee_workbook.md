@@ -201,10 +201,9 @@ it, give it a few instructions, and ask questions in plain language.
 2. From your dashboard, **create a Genie space from it** (use the Genie / "Create Genie space" control
    on the dashboard). This builds a Genie space on your dashboard's data.
 3. Open the new Genie space and find the **Instructions** area. **Paste in** the instructions block
-   your instructor shares (it is also below). Save.
+   your instructor shares (shown below). Save.
 
-   <details><summary>Instructions block to paste</summary>
-
+   Instructions block to paste:
    ```
    This Genie space answers questions about synthetic hospital encounters. There is no PHI.
 
@@ -228,7 +227,6 @@ it, give it a few instructions, and ask questions in plain language.
    - "knee replacement" means primary_procedure_code = '27447'.
    - Round rates to one decimal place and currency to whole dollars.
    ```
-   </details>
 
 4. Ask a few questions. Try these, then your own:
    - "How many encounters were there in 2024 by region?"
