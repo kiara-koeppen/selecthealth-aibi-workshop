@@ -63,9 +63,13 @@ selecthealth-aibi-workshop/
 │   └── genie_space_config.md       # Genie space setup: instructions + sample questions
 └── lab_guides/
     ├── agenda.md                   # Shareable agenda (both days)
-    ├── day1_lab_guide.md           # Click-by-click facilitator + attendee guide
-    └── day2_lab_guide.md           # Build-session guide
+    ├── instructor_guide.md         # Detailed facilitator manual: talk tracks, clicks, what to point out
+    ├── attendee_workbook.md        # Step-by-step the attendees follow along
+    └── workshop_assets.md          # Live links/IDs for the deployed dataset, dashboard, Genie space
 ```
+
+Orientation slide deck (first ~20 min of Day 1) is a Google Slides deck; link tracked in
+`workshop_assets.md`.
 
 ## Configuration
 
