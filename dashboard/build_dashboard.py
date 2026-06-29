@@ -4,9 +4,12 @@ Single base dataset at encounter grain (joined to all dims) with widget-level
 aggregation, so cross-filtering works out of the box. Writes
 selecthealth_workshop.lvdash.json next to this file.
 """
-import json, pathlib
+import json, os, pathlib
 
-CATALOG, SCHEMA = "kk_test", "selecthealth_workshop"
+# Must match the catalog/schema the generator wrote to. Override via env if you ran the
+# generator with non-default widgets, e.g. WORKSHOP_CATALOG=mycat WORKSHOP_SCHEMA=myschema.
+CATALOG = os.environ.get("WORKSHOP_CATALOG", "kk_test")
+SCHEMA = os.environ.get("WORKSHOP_SCHEMA", "selecthealth_workshop")
 
 # Base dataset: one row per encounter, joined to dims, with per-row *_pct helper
 # columns (0 or 100) so AVG(...) yields a readable percentage in widgets.
@@ -116,7 +119,7 @@ dashboard = {
     "pages": [
         {"name": "overview", "displayName": "Encounter & Outcomes Overview", "pageType": "PAGE_TYPE_CANVAS",
          "layout": [
-            text("title", "# SelectHealth Workshop — Encounters & Outcomes", 0, 0, 6, 1),
+            text("title", "# SelectHealth Workshop - Encounters & Outcomes", 0, 0, 6, 1),
             text("subtitle", "Synthetic medical encounters (no PHI). Aggregate by provider and facility, trend over time, drill into outcomes.", 0, 1, 6, 1),
             counter("kpi-encounters", "COUNT(`encounter_id`)", "count(encounter_id)", "Total encounters", 0, 2),
             counter("kpi-readmit", "AVG(`readmit_pct`)", "avg(readmit_pct)", "Readmission rate %", 2, 2),

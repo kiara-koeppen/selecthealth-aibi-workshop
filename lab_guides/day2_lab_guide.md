@@ -1,4 +1,4 @@
-# Day 2 Lab Guide — Build with your own scenario
+# Day 2 Lab Guide - Build with your own scenario
 
 **Facilitator:** Kiara (lead) + Clint (floating)
 **Duration:** ~1h50 (12:00–1:50 CT). Mostly hands-on.
@@ -50,11 +50,11 @@ Each analyst builds a dashboard or answers their question on `kk_test.selectheal
 
 ## 3 · Wrap & next steps (1:40–1:50)
 
-- Map to reality: "Everything you did sits on synthetic data — but the exact same flow works on your real SelectHealth tables once they're in Databricks." Note governance (Unity Catalog) and that metric views keep definitions consistent across the team.
+- Map to reality: "Everything you did sits on synthetic data - but the exact same flow works on your real SelectHealth tables once they're in Databricks." Note governance (Unity Catalog) and that metric views keep definitions consistent across the team.
 - Capture the team's honest read (this is an assessment for Carla to advise other teams).
 - Next steps: who follows up, what to pilot on real data, any access/enablement gaps.
 
 ## Facilitator notes
-- Protect build time — keep share-outs tight.
+- Protect build time - keep share-outs tight.
 - If energy is high, the eager analyst may want embedding / Genie API / programmatic access; have a pointer ready but don't derail the room.
 - Log unanswered questions for the follow-up rather than rabbit-holing live.

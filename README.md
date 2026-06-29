@@ -4,11 +4,11 @@ Hands-on workshop materials for the SelectHealth analytics team's evaluation of 
 
 ## Purpose
 
-The SelectHealth team builds queries, dashboards, and reports — today largely in Tableau, with their data migrating to Databricks. This workshop is a discovery / bake-off: get the analysts hands-on with AI/BI dashboards (the primary focus) plus Genie for natural-language querying, on a realistic medical dataset, so they can form a genuine opinion on fit.
+The SelectHealth team builds queries, dashboards, and reports - today largely in Tableau, with their data migrating to Databricks. This workshop is a discovery / bake-off: get the analysts hands-on with AI/BI dashboards (the primary focus) plus Genie for natural-language querying, on a realistic medical dataset, so they can form a genuine opinion on fit.
 
 Two sessions:
-- **Day 1 (Wed, ~3h50):** What's possible — dashboard authoring, AI-assisted authoring, the semantic layer, and a Genie segment.
-- **Day 2 (Thu, ~1h50):** Build with your own scenario — each analyst builds, then share-outs.
+- **Day 1 (Wed, ~3h50):** What's possible - dashboard authoring, AI-assisted authoring, the semantic layer, and a Genie segment.
+- **Day 2 (Thu, ~1h50):** Build with your own scenario - each analyst builds, then share-outs.
 
 See [`lab_guides/agenda.md`](lab_guides/agenda.md) for the full agenda and
 [`lab_guides/workshop_assets.md`](lab_guides/workshop_assets.md) for live links to the
@@ -43,12 +43,12 @@ The dataset is a star schema centered on `fact_encounters`. Outcomes (readmissio
 
 ## How to deploy
 
-1. **Generate the dataset** — run the notebook on serverless (widgets default to `kk_test.selecthealth_workshop`):
+1. **Generate the dataset** - run the notebook on serverless (widgets default to `kk_test.selecthealth_workshop`):
    ```
    data_generation/generate_workshop_data.py
    ```
-2. **Deploy the dashboard** — import `dashboard/selecthealth_workshop.lvdash.json` into the workspace (Dashboards → Import), or via the Lakeview API.
-3. **Create the Genie space** — see `genie/genie_space_config.md` for instructions, sample questions, and the table set.
+2. **Deploy the dashboard** - import `dashboard/selecthealth_workshop.lvdash.json` into the workspace (Dashboards → Import), or via the Lakeview API.
+3. **Create the Genie space** - see `genie/genie_space_config.md` for instructions, sample questions, and the table set.
 
 ## File / folder structure
 
@@ -69,4 +69,4 @@ selecthealth-aibi-workshop/
 
 ## Configuration
 
-All data generation is parameterized via `dbutils.widgets` (catalog, schema, row counts, date range) — nothing hardcoded. Defaults target `kk_test.selecthealth_workshop`.
+All data generation is parameterized via `dbutils.widgets` (catalog, schema, row counts, date range) - nothing hardcoded. Defaults target `kk_test.selecthealth_workshop`.

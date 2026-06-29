@@ -1,4 +1,4 @@
-# Genie Space — SelectHealth Workshop
+# Genie Space - SelectHealth Workshop
 
 Pre-built Genie space for the natural-language querying segment (Day 1) and the
 "Genie-first" Day-2 scenario.
@@ -12,7 +12,7 @@ Pre-built Genie space for the natural-language querying segment (Day 1) and the
 ## Description (configured)
 Natural-language querying over the synthetic medical dataset (no PHI). One row per
 patient encounter joined to provider, facility, diagnosis (ICD-10), and procedure
-dimensions. Every answer shows the generated Databricks SQL — useful for translating
+dimensions. Every answer shows the generated Databricks SQL - useful for translating
 between SQL dialects (the hook for the query-focused / AI-skeptic analyst).
 
 ## Sample questions (configured, shown to users)

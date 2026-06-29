@@ -56,7 +56,11 @@ print(f"Generating {NUM_ENCOUNTERS:,} encounters into {CATALOG}.{SCHEMA}")
 
 # COMMAND ----------
 
-spark.sql(f"CREATE CATALOG IF NOT EXISTS {CATALOG}")
+# NOTE: we do NOT `CREATE CATALOG` here. On metastores with Default Storage and no
+# managed location (e.g. the Azure kk_test workspace this was built on), creating a NEW
+# catalog fails with "Metastore storage root URL does not exist". The target catalog is
+# expected to already exist. If it doesn't, create it once in the UI (or with an explicit
+# MANAGED LOCATION) before running this notebook.
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.{SCHEMA}")
 spark.sql(f"USE {CATALOG}.{SCHEMA}")
 
@@ -188,7 +192,7 @@ LAST = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","
         "Nguyen","Patel","Kim","Chen","Okafor","Singh","Ali","Romero","Schultz","Bennett"]
 provider_rows = []
 for i in range(NUM_PROVIDERS):
-    npi = f"P{1000000000 + random.randint(0, 8999999999):010d}"[:10]
+    npi = str(random.randint(1000000000, 9999999999))  # 10-digit NPI-style id
     name = f"Dr. {random.choice(FIRST)} {random.choice(LAST)}"
     specialty = random.choice(SPECIALTIES)
     fac = random.choice(facility_rows)
@@ -246,7 +250,8 @@ def gen_row(i):
     prov = random.choice(provider_ids)
     fac = prov_to_fac[prov]
 
-    admit_offset = random.randint(0, span_days)
+    # cap the admit offset so discharge (admit + los) never spills past END_DATE
+    admit_offset = random.randint(0, max(0, span_days - los))
     admit = start.toordinal() + admit_offset
     admit_date = date.fromordinal(admit)
     discharge_date = date.fromordinal(admit + los)
@@ -323,7 +328,8 @@ for col, comment in {
     "total_charges": "Total billed charges in USD",
     "total_paid": "Total amount paid in USD",
 }.items():
-    spark.sql(f"ALTER TABLE fact_encounters ALTER COLUMN {col} COMMENT '{comment}'")
+    safe_comment = comment.replace("'", "''")  # escape quotes so comments stay valid SQL
+    spark.sql(f"ALTER TABLE fact_encounters ALTER COLUMN {col} COMMENT '{safe_comment}'")
 
 print("Comments applied. Dataset ready.")
 

@@ -1,4 +1,4 @@
-# Workshop Assets — Live Links & Reference
+# Workshop Assets - Live Links & Reference
 
 Everything staged in **`kk_test`** (`adb-669602668219382.2.azuredatabricks.net`). All
 synthetic, no PHI.
