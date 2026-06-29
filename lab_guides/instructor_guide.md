@@ -112,10 +112,13 @@ at the real analysis."
    ranked, risk-binned scorecard with no table-calc plumbing.
 3. `Outcome trend` dataset: the `LAG` period-over-period + windowed rolling-average query. Add a
    **Combo** chart (bars = encounters, line = `rolling_3mo` on a second axis).
+4. **Calculated measure + dimension (no code):** add a calculated measure (paid-to-charge ratio) and a
+   calculated dimension (age band via CASE). Their Tableau calculated field, in the dataset.
 
 **Point out:**
 - `PERCENT_RANK` / `NTILE` = their rank table calcs; `LAG` and the windowed `AVG` = running/difference
-  and trailing-average table calcs. Reused by every widget, governed, version-controllable.
+  and trailing-average table calcs; the calculated measure/dimension = their calculated field. Reused
+  by every widget, governed, version-controllable.
 - The escape hatch: anything expressible in SQL (including `QUALIFY`, percentiles, CTEs) is first-class.
 - No extract, no refresh schedule. Live on the lakehouse.
 
@@ -141,12 +144,18 @@ the interactivity (cross-filter, drill). This is where the Tableau-heavy analyst
 3. **Heatmap:** `Category x region` complication rate.
 4. **Map:** choropleth on `state` colored by readmission rate.
 5. **Pivot table:** clinical_category x encounter_type.
-6. **Interactivity:** region filter + date-range filter, cross-filtering on click, and a
+6. **Forecasting + AI functions:** `ai_forecast` to project the next six months of volume (verified to
+   run on this data); name-drop `ai_query` / `ai_classify` / `ai_extract` as same-SQL built-ins.
+7. **Interactivity:** region filter + date-range filter, cross-filtering on click, and a
    region > facility > provider drill hierarchy.
+8. **Multipage reporting:** split into pages (Overview / Provider performance / Geography) using the
+   page tabs, with shared filters. Mention themes exist but we are not focused on branding (Carla
+   deferred it).
 
 **Point out:**
-- Parameters + window functions + `QUALIFY` cover the large majority of what they reach for table calcs
-  and LOD to do in Tableau.
+- This is the full capability surface: rich visuals, calculated fields, parameters, cross-filter,
+  drill, forecasting, multipage. Parameters + window functions + `QUALIFY` cover the large majority of
+  what they reach for table calcs and LOD to do in Tableau.
 - Be honest where Tableau still leads: very fine-grained reference lines/bands, a few niche chart types,
   some LOD nuance. The counter: SQL is always available, so they are rarely boxed in.
 

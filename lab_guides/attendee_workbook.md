@@ -35,6 +35,11 @@ Everything lives in `demo.selecthealth_workshop`:
 
 # DAY 1
 
+> **Capabilities we will cover today:** rich interactive visuals (combo, heatmap, map, pivot,
+> scorecard), calculated dimensions and measures, parameterized widgets, cross-filtering, drilling,
+> forecasting and AI functions, multipage reporting, and Ask Genie from a published dashboard. The
+> companion one-pager has a quick reference for each.
+
 ## Part 1 - The dataset is your analytics engine (window functions, ranking, period-over-period)
 
 The key idea: a dataset is **full Databricks SQL**. The things you do with table calcs, LOD
@@ -85,10 +90,16 @@ reused by every widget. We will go straight to the kind of analysis you actually
    ```
    Add a **Combo** chart: bars = `encounters`, line = `rolling_3mo` on a second axis. Add `yoy_pct`
    as a second line or a separate small chart.
+4. **Calculated measures and dimensions (no code).** You do not have to do everything in SQL. On a
+   dataset, add a **calculated measure** with a formula, for example a paid-to-charge ratio:
+   `SUM(total_paid) / SUM(total_charges)`. Add a **calculated dimension** that bins a field, for
+   example an age band: `CASE WHEN patient_age < 40 THEN '<40' WHEN patient_age < 65 THEN '40-64'
+   ELSE '65+' END`. Use them in any visual. They recompute automatically as filters change.
 
 > **Tableau translation:** `PERCENT_RANK` / `NTILE` replace your rank table calcs; `LAG` and the
-> windowed `AVG` replace the running/difference table calcs and the trailing-average trick. They live
-> in the dataset, governed and reusable, instead of per-worksheet.
+> windowed `AVG` replace the running/difference table calcs and the trailing-average trick; the
+> calculated measure/dimension above is your Tableau calculated field. They live in the dataset,
+> governed and reusable, instead of per-worksheet.
 
 ---
 
@@ -132,14 +143,37 @@ reused by every widget. We will go straight to the kind of analysis you actually
    Add a **Choropleth map** keyed on `state`, colored by `readmit_rate_pct`.
 5. **Pivot table.** Add a **Pivot** on the encounters: rows = `clinical_category`, columns =
    `encounter_type`, value = count. (Use a dataset that selects those three plus the flags.)
-6. **Interactivity.** Add a **Filter** on `region` and a **Date range** on `admit_date`; click a mark to
+6. **Forecasting and AI functions.** Project the next six months of volume with the built-in
+   `ai_forecast` function. Dataset `Volume forecast`:
+   ```sql
+   WITH monthly AS (
+     SELECT DATE_TRUNC('month', admit_date) AS ds, COUNT(*)::DOUBLE AS y
+     FROM demo.selecthealth_workshop.fact_encounters
+     GROUP BY 1
+   )
+   SELECT ds, y AS encounters, NULL AS forecast, NULL AS lower, NULL AS upper FROM monthly
+   UNION ALL
+   SELECT ds, NULL, y_forecast, y_lower, y_upper
+   FROM AI_FORECAST(TABLE(monthly), horizon => '2026-06-01', time_col => 'ds', value_col => 'y')
+   ```
+   Plot `encounters` and `forecast` (with `lower`/`upper` as a band) on a line chart. Mention the
+   other built-in AI functions you can call the same way in SQL: `ai_query`, `ai_classify`,
+   `ai_extract`, `ai_summarize` - advanced analytics without leaving the dashboard.
+7. **Interactivity.** Add a **Filter** on `region` and a **Date range** on `admit_date`; click a mark to
    **cross-filter** every linked widget; add a `region` > `facility_name` > `provider_name` **drill**
    hierarchy on a chart.
+8. **Multipage reporting.** Split the dashboard into pages for different audiences, for example
+   **Overview** (KPIs + trend + forecast), **Provider performance** (the ranked scorecard + parameter),
+   and **Geography** (map + region benchmark). Use the page tabs at the top of the canvas. Filters can
+   be shared across pages.
+9. **Themes (optional).** Under dashboard settings you can apply a theme (colors, fonts) for a branded
+   look. We are not focusing on branding today, but know it is there for when you share externally.
 
 > **Honest trade-off:** Tableau is still ahead on a few things here - very fine-grained reference
-> lines/bands, some niche chart types, and certain LOD nuances. The counter that matters for you: any
-> analytic you can express in SQL is first-class (window functions, `QUALIFY`, percentiles,
-> parameters), and you can always drop to SQL, so you are rarely boxed in.
+> lines/bands, some niche chart types, and certain LOD nuances. The counter that matters for you: rich
+> interactive visuals, cross-filtering, drilling, parameters, calculated fields, forecasting, and
+> multipage reports are all here, and anything you can express in SQL is first-class, so you are rarely
+> boxed in.
 
 ---
 
