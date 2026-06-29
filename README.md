@@ -10,14 +10,16 @@ Two sessions:
 - **Day 1 (Wed, ~3h50):** What's possible - dashboard authoring, AI-assisted authoring, the semantic layer, and a Genie segment.
 - **Day 2 (Thu, ~1h50):** Build with your own scenario - each analyst builds, then share-outs.
 
-See [`lab_guides/agenda.md`](lab_guides/agenda.md) for the full agenda and
-[`lab_guides/workshop_assets.md`](lab_guides/workshop_assets.md) for live links to the
-deployed dataset, dashboard, and Genie space (all staged in `kk_test`).
+See [`lab_guides/agenda.md`](lab_guides/agenda.md) for the agenda,
+[`lab_guides/carla_agenda_and_setup.md`](lab_guides/carla_agenda_and_setup.md) for the
+customer-facing agenda plus setup steps, and
+[`lab_guides/workshop_assets.md`](lab_guides/workshop_assets.md) for asset links/IDs. The
+dataset generates into the `demo` catalog by default (configurable).
 
 ## Architecture / data flow
 
 ```
-generate_workshop_data.py  ──►  Unity Catalog (kk_test.selecthealth_workshop)
+generate_workshop_data.py  ──►  Unity Catalog (demo.selecthealth_workshop)
    (Spark, synthetic, no PHI)        ├── dim_provider      (providers, specialty, facility)
                                      ├── dim_facility      (hospitals/clinics, region)
                                      ├── dim_diagnosis     (ICD-10 + description + category)
@@ -37,13 +39,13 @@ The dataset is a star schema centered on `fact_encounters`. Outcomes (readmissio
 
 ## Prerequisites
 
-- Databricks workspace access (workshop staged in `kk_test`); attendees need accounts + UC permissions.
-- Databricks CLI authenticated to the target profile (`databricks auth login --profile kk_test`).
+- Databricks workspace access; attendees need accounts + UC permissions on the `demo` catalog (or whichever catalog you generate into).
+- Databricks CLI authenticated to your workspace (`databricks auth login`), if running from the CLI.
 - A SQL warehouse / serverless compute available in the workspace.
 
 ## How to deploy
 
-1. **Generate the dataset** - run the notebook on serverless (widgets default to `kk_test.selecthealth_workshop`):
+1. **Generate the dataset** - run the notebook on serverless (widgets default to `demo.selecthealth_workshop`):
    ```
    data_generation/generate_workshop_data.py
    ```
@@ -73,4 +75,4 @@ Orientation slide deck (first ~20 min of Day 1) is a Google Slides deck; link tr
 
 ## Configuration
 
-All data generation is parameterized via `dbutils.widgets` (catalog, schema, row counts, date range) - nothing hardcoded. Defaults target `kk_test.selecthealth_workshop`.
+All data generation is parameterized via `dbutils.widgets` (catalog, schema, row counts, date range) - nothing hardcoded. Defaults target `demo.selecthealth_workshop`.

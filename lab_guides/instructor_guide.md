@@ -40,18 +40,18 @@ rabbit-hole. Carla wants an honest assessment she can take back to advise other 
 
 ## Pre-flight checklist (do the day before)
 
-- [ ] All 3 attendees can log into the workshop workspace and have SELECT on
-      `kk_test.selecthealth_workshop` (see open item below).
-- [ ] SQL warehouse is running (or set to auto-start). Warehouse `ad1dd0025031919f`.
-- [ ] Open the starter dashboard and confirm every widget renders.
-- [ ] Open the Genie space and run the knee-replacement question once to warm it.
+- [ ] Dataset generated into `demo.selecthealth_workshop` in the SelectHealth workspace
+      (run `data_generation/generate_workshop_data.py`; see `carla_agenda_and_setup.md`).
+- [ ] All 3 attendees can log into the workspace and have SELECT on `demo.selecthealth_workshop`.
+- [ ] A SQL warehouse (serverless or pro) is running, or set to auto-start.
+- [ ] Dashboard imported (`dashboard/selecthealth_workshop.lvdash.json`) and every widget renders.
+- [ ] Genie space created and answers the knee-replacement question once (to warm it).
 - [ ] Slide deck open and ready to present.
 - [ ] Decide: do attendees each clone the starter dashboard, or build their own from scratch?
       (Recommended: build their own on Day 1 so they learn the authoring flow; reference the
       starter when they get stuck.)
-- [ ] **Open item / access:** the assets are staged in `kk_test`, which the SelectHealth attendees
-      may not be able to reach. Confirm access or restage in a workspace they can use before the
-      session. Flag to Kiara if unresolved.
+- [ ] Dry-run option: Kiara's staging copy in `kk_test` (see `workshop_assets.md`) can be used
+      to rehearse before the SelectHealth workspace is set up.
 
 ---
 
@@ -207,7 +207,7 @@ human-in-the-loop loop. Do not hide it.
 - Restate each analyst's scenario so expectations are set.
 
 ## Segment 1 - Hands-on build (12:10-1:00)
-Each analyst builds on `kk_test.selecthealth_workshop` (or rebuilds one of their own Tableau
+Each analyst builds on `demo.selecthealth_workshop` (or rebuilds one of their own Tableau
 dashboards). Kiara and Clint float. Starter scenarios are in the Attendee Workbook, Day 2.
 
 **Coaching cues by person:**

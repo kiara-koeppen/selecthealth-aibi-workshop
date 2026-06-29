@@ -1,13 +1,15 @@
 # Genie Space - SelectHealth Workshop
 
-Pre-built Genie space for the natural-language querying segment (Day 1) and the
-"Genie-first" Day-2 scenario.
+Genie space for the natural-language querying segment (Day 1) and the "Genie-first" Day-2
+scenario. Create this in the SelectHealth workspace after generating the dataset.
 
-## Live space
+## Create the space on
 - **Name:** SelectHealth Workshop - Encounters Genie
-- **Space ID:** `01f173e9cad61c2cbd13dd24c3a3cc6f`
-- **Workspace:** `kk_test` (adb-669602668219382.2.azuredatabricks.net)
-- **Tables:** `kk_test.selecthealth_workshop.{fact_encounters, dim_provider, dim_facility, dim_diagnosis, dim_procedure}`
+- **Tables:** `demo.selecthealth_workshop.{fact_encounters, dim_provider, dim_facility, dim_diagnosis, dim_procedure}`
+  (use whatever catalog you generated into; default is `demo`)
+
+> Kiara's staging copy (for reference only) lives in `kk_test`, space ID
+> `01f173e9cad61c2cbd13dd24c3a3cc6f`, pointing at `kk_test.selecthealth_workshop`.
 
 ## Description (configured)
 Natural-language querying over the synthetic medical dataset (no PHI). One row per

@@ -13,10 +13,10 @@
         "       p.provider_name, p.specialty, ",
         "       f.facility_name, f.region, f.facility_type, ",
         "       d.clinical_category ",
-        "FROM kk_test.selecthealth_workshop.fact_encounters e ",
-        "JOIN kk_test.selecthealth_workshop.dim_provider p USING (provider_id) ",
-        "JOIN kk_test.selecthealth_workshop.dim_facility f USING (facility_id) ",
-        "JOIN kk_test.selecthealth_workshop.dim_diagnosis d ON e.primary_icd10_code = d.icd10_code "
+        "FROM demo.selecthealth_workshop.fact_encounters e ",
+        "JOIN demo.selecthealth_workshop.dim_provider p USING (provider_id) ",
+        "JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id) ",
+        "JOIN demo.selecthealth_workshop.dim_diagnosis d ON e.primary_icd10_code = d.icd10_code "
       ]
     }
   ],

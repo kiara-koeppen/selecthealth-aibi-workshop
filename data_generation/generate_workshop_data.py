@@ -31,7 +31,7 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("catalog", "kk_test", "Target catalog")
+dbutils.widgets.text("catalog", "demo", "Target catalog")
 dbutils.widgets.text("schema", "selecthealth_workshop", "Target schema")
 dbutils.widgets.text("num_encounters", "80000", "Number of encounters to generate")
 dbutils.widgets.text("num_providers", "45", "Number of providers")
@@ -56,11 +56,16 @@ print(f"Generating {NUM_ENCOUNTERS:,} encounters into {CATALOG}.{SCHEMA}")
 
 # COMMAND ----------
 
-# NOTE: we do NOT `CREATE CATALOG` here. On metastores with Default Storage and no
-# managed location (e.g. the Azure kk_test workspace this was built on), creating a NEW
-# catalog fails with "Metastore storage root URL does not exist". The target catalog is
-# expected to already exist. If it doesn't, create it once in the UI (or with an explicit
-# MANAGED LOCATION) before running this notebook.
+# Create the target catalog if it does not already exist. On some metastores (Default
+# Storage enabled with no managed location) creating a brand-new catalog fails with
+# "Metastore storage root URL does not exist". If you hit that, create the catalog once
+# in the Catalog UI (Catalog > Create catalog) or with an explicit MANAGED LOCATION, then
+# re-run. If the catalog already exists, this is a no-op.
+try:
+    spark.sql(f"CREATE CATALOG IF NOT EXISTS {CATALOG}")
+except Exception as e:
+    print(f"Could not auto-create catalog '{CATALOG}'. If it does not already exist, create "
+          f"it once in the Catalog UI (or with a MANAGED LOCATION) and re-run. Details: {e}")
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.{SCHEMA}")
 spark.sql(f"USE {CATALOG}.{SCHEMA}")
 

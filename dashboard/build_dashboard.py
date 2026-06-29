@@ -8,7 +8,7 @@ import json, os, pathlib
 
 # Must match the catalog/schema the generator wrote to. Override via env if you ran the
 # generator with non-default widgets, e.g. WORKSHOP_CATALOG=mycat WORKSHOP_SCHEMA=myschema.
-CATALOG = os.environ.get("WORKSHOP_CATALOG", "kk_test")
+CATALOG = os.environ.get("WORKSHOP_CATALOG", "demo")
 SCHEMA = os.environ.get("WORKSHOP_SCHEMA", "selecthealth_workshop")
 
 # Base dataset: one row per encounter, joined to dims, with per-row *_pct helper

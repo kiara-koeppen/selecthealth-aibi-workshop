@@ -9,7 +9,7 @@ The goal is to see where this way of working makes your life easier (and where y
 As you go, keep a running list of what you like and what you miss.
 
 ## The dataset
-Everything lives in `kk_test.selecthealth_workshop`:
+Everything lives in `demo.selecthealth_workshop`:
 
 | Table | What it is |
 |---|---|
@@ -47,8 +47,8 @@ Everything lives in `kk_test.selecthealth_workshop`:
           COUNT(*)                                          AS encounters,
           ROUND(100.0*SUM(e.readmitted_30d)/COUNT(*), 1)    AS readmit_rate_pct,
           ROUND(100.0*SUM(e.complication_flag)/COUNT(*), 1) AS complication_rate_pct
-   FROM kk_test.selecthealth_workshop.fact_encounters e
-   JOIN kk_test.selecthealth_workshop.dim_facility f USING (facility_id)
+   FROM demo.selecthealth_workshop.fact_encounters e
+   JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
    GROUP BY f.facility_name, f.region
    ```
 3. Go to the **Canvas** tab, click **Add a visualization**, choose **Bar**.
@@ -60,9 +60,9 @@ Everything lives in `kk_test.selecthealth_workshop`:
    SELECT p.provider_name, p.specialty, f.facility_name,
           COUNT(*)                          AS encounters,
           ROUND(AVG(e.length_of_stay_days), 1) AS avg_los_days
-   FROM kk_test.selecthealth_workshop.fact_encounters e
-   JOIN kk_test.selecthealth_workshop.dim_provider p USING (provider_id)
-   JOIN kk_test.selecthealth_workshop.dim_facility f USING (facility_id)
+   FROM demo.selecthealth_workshop.fact_encounters e
+   JOIN demo.selecthealth_workshop.dim_provider p USING (provider_id)
+   JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
    GROUP BY p.provider_name, p.specialty, f.facility_name
    ```
 5. Add a **Table** visualization on `Provider volume`. Sort by `encounters` descending.
@@ -82,8 +82,8 @@ Everything lives in `kk_test.selecthealth_workshop`:
           f.region,
           COUNT(*)                                       AS encounters,
           ROUND(100.0*SUM(e.mortality_flag)/COUNT(*), 2) AS mortality_rate_pct
-   FROM kk_test.selecthealth_workshop.fact_encounters e
-   JOIN kk_test.selecthealth_workshop.dim_facility f USING (facility_id)
+   FROM demo.selecthealth_workshop.fact_encounters e
+   JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
    GROUP BY 1, 2
    ```
 2. Add a **Line** visualization: X = `month`, Y = `encounters`, color/series = `region`.
@@ -149,10 +149,10 @@ you can show the group in a few minutes.
 
 | Scenario | Good for practicing | Starter query (adapt freely) |
 |---|---|---|
-| Provider outcomes scorecard | aggregation, ranking, thresholds | `SELECT p.provider_name, COUNT(*) enc, ROUND(100.0*SUM(e.complication_flag)/COUNT(*),1) comp_rate FROM kk_test.selecthealth_workshop.fact_encounters e JOIN kk_test.selecthealth_workshop.dim_provider p USING(provider_id) GROUP BY 1 HAVING enc>200 ORDER BY comp_rate DESC` |
+| Provider outcomes scorecard | aggregation, ranking, thresholds | `SELECT p.provider_name, COUNT(*) enc, ROUND(100.0*SUM(e.complication_flag)/COUNT(*),1) comp_rate FROM demo.selecthealth_workshop.fact_encounters e JOIN demo.selecthealth_workshop.dim_provider p USING(provider_id) GROUP BY 1 HAVING enc>200 ORDER BY comp_rate DESC` |
 | Knee replacement deep-dive | filtering to a procedure, trend | filter `primary_procedure_code = '27447'`; trend LOS and readmit over time; split by facility |
-| Cost vs. outcome | two measures, scatter | `SELECT f.facility_name, AVG(e.total_paid) avg_paid, 100.0*SUM(e.readmitted_30d)/COUNT(*) readmit_rate FROM kk_test.selecthealth_workshop.fact_encounters e JOIN kk_test.selecthealth_workshop.dim_facility f USING(facility_id) GROUP BY 1` |
-| Payer mix by region | stacked bar, categorical split | `SELECT f.region, e.payer_type, COUNT(*) enc FROM kk_test.selecthealth_workshop.fact_encounters e JOIN kk_test.selecthealth_workshop.dim_facility f USING(facility_id) GROUP BY 1,2` |
+| Cost vs. outcome | two measures, scatter | `SELECT f.facility_name, AVG(e.total_paid) avg_paid, 100.0*SUM(e.readmitted_30d)/COUNT(*) readmit_rate FROM demo.selecthealth_workshop.fact_encounters e JOIN demo.selecthealth_workshop.dim_facility f USING(facility_id) GROUP BY 1` |
+| Payer mix by region | stacked bar, categorical split | `SELECT f.region, e.payer_type, COUNT(*) enc FROM demo.selecthealth_workshop.fact_encounters e JOIN demo.selecthealth_workshop.dim_facility f USING(facility_id) GROUP BY 1,2` |
 | Genie-first | NL querying, then save to dashboard | ask the Genie space, then add a good answer to a dashboard |
 | Rebuild one of your Tableau dashboards | direct comparison | recreate a dashboard you know well and note what's easier and what's missing |
 
