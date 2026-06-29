@@ -10,7 +10,9 @@ Two sessions:
 - **Day 1 (Wed, ~3h50):** What's possible — dashboard authoring, AI-assisted authoring, the semantic layer, and a Genie segment.
 - **Day 2 (Thu, ~1h50):** Build with your own scenario — each analyst builds, then share-outs.
 
-See [`lab_guides/agenda.md`](lab_guides/agenda.md) for the full agenda.
+See [`lab_guides/agenda.md`](lab_guides/agenda.md) for the full agenda and
+[`lab_guides/workshop_assets.md`](lab_guides/workshop_assets.md) for live links to the
+deployed dataset, dashboard, and Genie space (all staged in `kk_test`).
 
 ## Architecture / data flow
 
