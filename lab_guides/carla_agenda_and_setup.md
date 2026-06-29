@@ -22,7 +22,7 @@ querying) woven in. We will be candid about where this fits and where you would 
 | 1:20 to 2:10 | Dashboard authoring II | Trends over time, drill-downs, filters, and cross-filtering between visuals. |
 | 2:10 to 2:25 | Break | |
 | 2:25 to 3:05 | AI-assisted authoring and the semantic layer | Build visuals from a prompt; metric views as the governed "published data source" equivalent. |
-| 3:05 to 3:40 | Genie: ask your data in plain language | Ask questions in natural language, see the generated SQL, and talk through trust and governance. |
+| 3:05 to 3:40 | Publish and ask: Genie from your dashboard | Publish the dashboard you built, create a Genie space from it, add a few instructions, and ask questions in plain language. |
 | 3:40 to 3:50 | Wrap and Day-2 setup | Recap and confirm the scenario each analyst wants to build on Day 2. |
 
 ## Day 2 (Thursday): Build with your own scenario

@@ -19,7 +19,7 @@
 | 1:20–2:10 | **Dashboard Authoring II** | Trends over time, drill-downs (region → facility → provider), filters, and cross-filtering between visuals. |
 | 2:10–2:25 | *Break* | |
 | 2:25–3:05 | **AI-assisted authoring + the semantic layer** | Use the AI assistant to build visuals from a prompt; introduce metric views as the governed "published data source" equivalent so definitions stay consistent. |
-| 3:05–3:40 | **Genie: ask your data in plain language** | Ask questions in natural language on the same dataset, see the generated SQL (handy for translating between SQL dialects), and talk through trust and governance. |
+| 3:05–3:40 | **Publish and ask: Genie from your dashboard** | Publish the dashboard you built, create a Genie space from it, paste in a few instructions, and ask questions in plain language (with the generated SQL shown). |
 | 3:40–3:50 | **Wrap & day-2 setup** | Recap and confirm the scenario each analyst wants to build on Day 2. |
 
 ## Day 2 (Thursday) - Build with your own scenario
