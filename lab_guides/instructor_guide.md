@@ -94,55 +94,65 @@ defensive.
 
 ---
 
-## Segment 1 - Build manually: your first dashboard (12:20-1:05)
+## Segment 1 - The dataset as an analytics engine (12:20-1:05)
 
-**Goal:** Everyone authors a dashboard from scratch and aggregates an outcome by provider and
-facility. This is the "build stuff manually" half they asked for.
+**Goal:** Establish credibility fast. These are senior analysts who do complex work in Tableau, so do
+NOT linger on "drop a bar chart." Lead with the point that a dataset is full Databricks SQL, so their
+table calcs / LOD / rank work are just window functions here, defined once and reused. Build a ranked,
+binned provider scorecard and a period-over-period trend.
 
-**Say:** "We'll start by building the way you build in Tableau: pick data, drop a chart, group it.
-Then we'll see what's different."
+**Say:** "A dataset here is just SQL, so everything you do with table calcs and LOD in Tableau, you do
+with window functions, and it lives in one governed place instead of per-worksheet. Let's go straight
+at the real analysis."
 
-**Do (lead from your screen, attendees follow in the Attendee Workbook, Part 1):**
-1. Left nav, **Dashboards** > **Create dashboard**. Name it `My SelectHealth Workshop`.
-2. **Data** tab > **Create from SQL**. Paste the `Facility outcomes` query (Workbook Part 1, Step 2).
-   Run it, show the preview grid.
-3. **Canvas** tab > **Add a visualization** > **Bar**. X = `facility_name`, Y = `readmit_rate_pct`,
-   sort descending. Title it.
-4. Add the `Provider volume` dataset and a **Table** visual on it.
+**Do (Attendee Workbook, Part 1):**
+1. **Dashboards** > **Create dashboard**, name it.
+2. `Provider performance` dataset: the percentile-rank + `NTILE(4)` quartile query (Workbook Part 1,
+   Step 2). Add a **Table**, then **conditional formatting** to color the quartile / rate. This is a
+   ranked, risk-binned scorecard with no table-calc plumbing.
+3. `Outcome trend` dataset: the `LAG` period-over-period + windowed rolling-average query. Add a
+   **Combo** chart (bars = encounters, line = `rolling_3mo` on a second axis).
 
 **Point out:**
-- The aggregation lives in the **dataset**, reusable across every widget. ("In Tableau that logic
-  often lives inside one worksheet; here it's shared.")
-- No data extract or refresh schedule to manage. It is querying the lakehouse live.
+- `PERCENT_RANK` / `NTILE` = their rank table calcs; `LAG` and the windowed `AVG` = running/difference
+  and trailing-average table calcs. Reused by every widget, governed, version-controllable.
+- The escape hatch: anything expressible in SQL (including `QUALIFY`, percentiles, CTEs) is first-class.
+- No extract, no refresh schedule. Live on the lakehouse.
 
-**Checkpoint:** everyone has 1 bar + 1 table. Clint floats to unstick anyone. Do not move on until
-all three are caught up.
+**Checkpoint:** everyone has the ranked scorecard table + the combo trend. Clint floats. Do not move on
+until all three are caught up.
 
 ### Break (1:05-1:20)
 
 ---
 
-## Segment 2 - Build manually: interactivity (1:20-2:10)
+## Segment 2 - Advanced visuals, parameters, and benchmarks (1:20-2:10)
 
-**Goal:** Trends over time, drill-down, filters, cross-filtering. The "aggregate, then drill" pattern
-Carla explicitly asked for.
+**Goal:** Push into the power-user surface: a parameter that re-thresholds the analysis live, a
+peer-group benchmark (window over a grouped aggregate), a heatmap, a choropleth map, a pivot table, and
+the interactivity (cross-filter, drill). This is where the Tableau-heavy analyst decides this is serious.
 
 **Do (Workbook Part 2):**
-1. Add the `Monthly trend` dataset; add a **Line** visual (X = month, Y = encounters, color = region).
-2. Add a **Filter** widget on `region` and a **Date range** filter on `admit_date`. Show that one
-   selection updates every bound widget.
-3. **Cross-filtering:** click a bar in the facility chart and watch linked widgets filter. Call this
-   out as the equivalent of Tableau dashboard actions, with zero configuration.
-4. **Drill-down:** add a `region > facility_name > provider_name` hierarchy and click down a level.
+1. **Parameter:** add a `min_encounters` parameter (default 200) and wire it into the
+   `Provider performance` dataset HAVING clause (`HAVING COUNT(*) >= :min_encounters`). Change the value
+   and watch the scorecard re-threshold live. Call out this is their Tableau parameter, driving SQL.
+2. **Benchmark vs peer group:** `Facility vs region` dataset (the `AVG(...) OVER (PARTITION BY region)`
+   pattern), shown as a table with diverging conditional formatting on `vs_region_avg_pts`.
+3. **Heatmap:** `Category x region` complication rate.
+4. **Map:** choropleth on `state` colored by readmission rate.
+5. **Pivot table:** clinical_category x encounter_type.
+6. **Interactivity:** region filter + date-range filter, cross-filtering on click, and a
+   region > facility > provider drill hierarchy.
 
 **Point out:**
-- Filters, actions, and drill are mostly default behavior here, versus deliberate setup in Tableau.
-- Region has only a handful of values, which is why it works as a color series. Mention the
-  readability rule: keep color/grouping to a small number of categories, push high-cardinality
-  fields (provider, encounter) into tables.
+- Parameters + window functions + `QUALIFY` cover the large majority of what they reach for table calcs
+  and LOD to do in Tableau.
+- Be honest where Tableau still leads: very fine-grained reference lines/bands, a few niche chart types,
+  some LOD nuance. The counter: SQL is always available, so they are rarely boxed in.
 
-**Watch for:** the Tableau-heavy analyst will compare formatting control. Acknowledge Tableau is
-ahead on fine formatting; steer to "what's the fastest path to the answer."
+**Watch for:** the eager analyst will want to stress-test it. Let them throw a hard ask at a dataset and
+solve it in SQL live. The skeptic cares about governance: emphasize definitions live in the dataset /
+metric view, not scattered across workbooks.
 
 ### Break (2:10-2:25)
 

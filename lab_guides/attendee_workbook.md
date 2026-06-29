@@ -35,67 +35,111 @@ Everything lives in `demo.selecthealth_workshop`:
 
 # DAY 1
 
-## Part 1 - Your first dashboard: aggregate by provider and facility
+## Part 1 - The dataset is your analytics engine (window functions, ranking, period-over-period)
 
-**You'll build:** a bar chart of readmission rate by facility, plus a provider table.
+The key idea: a dataset is **full Databricks SQL**. The things you do with table calcs, LOD
+expressions, and rank in Tableau are just window functions here, defined once in the dataset and
+reused by every widget. We will go straight to the kind of analysis you actually do.
 
-1. In the left nav, click **Dashboards**, then **Create dashboard**. Name it `My SelectHealth Workshop`.
-2. Go to the **Data** tab, click **Create from SQL**, and paste this. Click **Run** to preview, and
-   name the dataset `Facility outcomes`:
+1. Create the dashboard: **Dashboards** > **Create dashboard**, name it `My SelectHealth Workshop`.
+2. **Data** tab > **Create from SQL**. Dataset `Provider performance` - rank providers by
+   risk outcome with percentile and quartile (min 200 encounters):
    ```sql
-   SELECT f.facility_name, f.region,
-          COUNT(*)                                          AS encounters,
-          ROUND(100.0*SUM(e.readmitted_30d)/COUNT(*), 1)    AS readmit_rate_pct,
-          ROUND(100.0*SUM(e.complication_flag)/COUNT(*), 1) AS complication_rate_pct
-   FROM demo.selecthealth_workshop.fact_encounters e
-   JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
-   GROUP BY f.facility_name, f.region
+   WITH prov AS (
+     SELECT p.provider_name, p.specialty, COUNT(*) AS enc,
+            AVG(e.readmitted_30d)*100 AS readmit_rate,
+            AVG(e.complication_flag)*100 AS comp_rate,
+            AVG(e.length_of_stay_days) AS avg_los
+     FROM demo.selecthealth_workshop.fact_encounters e
+     JOIN demo.selecthealth_workshop.dim_provider p USING (provider_id)
+     GROUP BY p.provider_name, p.specialty
+     HAVING COUNT(*) >= 200
+   )
+   SELECT provider_name, specialty, enc,
+          ROUND(readmit_rate,1) AS readmit_rate_pct,
+          ROUND(comp_rate,1)    AS comp_rate_pct,
+          ROUND(avg_los,1)      AS avg_los_days,
+          ROUND(PERCENT_RANK() OVER (ORDER BY readmit_rate),2) AS readmit_pctile,
+          NTILE(4) OVER (ORDER BY readmit_rate) AS readmit_quartile
+   FROM prov
    ```
-3. Go to the **Canvas** tab, click **Add a visualization**, choose **Bar**.
-   - X axis: `facility_name`
-   - Y axis: `readmit_rate_pct` (sort descending)
-   - Title: "30-day readmission rate by facility"
-4. Add a second dataset called `Provider volume`:
+   Add a **Table** on it. Then add **conditional formatting** to color `readmit_quartile`
+   (or `readmit_rate_pct`) red-to-green. This is your provider scorecard, ranked and binned, with no
+   table-calc plumbing.
+3. Dataset `Outcome trend` - period-over-period with a rolling average (LAG + windowed AVG):
    ```sql
-   SELECT p.provider_name, p.specialty, f.facility_name,
-          COUNT(*)                          AS encounters,
-          ROUND(AVG(e.length_of_stay_days), 1) AS avg_los_days
-   FROM demo.selecthealth_workshop.fact_encounters e
-   JOIN demo.selecthealth_workshop.dim_provider p USING (provider_id)
-   JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
-   GROUP BY p.provider_name, p.specialty, f.facility_name
+   WITH m AS (
+     SELECT DATE_TRUNC('month', admit_date) AS month, COUNT(*) AS encounters,
+            AVG(readmitted_30d)*100 AS readmit_rate
+     FROM demo.selecthealth_workshop.fact_encounters
+     GROUP BY 1
+   )
+   SELECT month, encounters,
+          encounters - LAG(encounters,1)  OVER (ORDER BY month) AS mom_change,
+          ROUND(100.0*(encounters - LAG(encounters,12) OVER (ORDER BY month))
+                / LAG(encounters,12) OVER (ORDER BY month), 1) AS yoy_pct,
+          ROUND(AVG(encounters) OVER (ORDER BY month ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),0)
+                AS rolling_3mo,
+          ROUND(readmit_rate,1) AS readmit_rate_pct
+   FROM m
    ```
-5. Add a **Table** visualization on `Provider volume`. Sort by `encounters` descending.
+   Add a **Combo** chart: bars = `encounters`, line = `rolling_3mo` on a second axis. Add `yoy_pct`
+   as a second line or a separate small chart.
 
-> **Notice:** the aggregation lives in the dataset, so every widget can reuse it. There's no extract
-> and no refresh schedule. You're querying the lakehouse live.
-
-**Checkpoint:** you should have one bar chart and one table.
+> **Tableau translation:** `PERCENT_RANK` / `NTILE` replace your rank table calcs; `LAG` and the
+> windowed `AVG` replace the running/difference table calcs and the trailing-average trick. They live
+> in the dataset, governed and reusable, instead of per-worksheet.
 
 ---
 
-## Part 2 - Make it interactive: trends, filters, drill-down
+## Part 2 - Advanced visuals, parameters, and benchmarks
 
-1. Add a dataset `Monthly trend`:
+1. **Parameter (like a Tableau parameter).** Add a dashboard **parameter** `min_encounters`
+   (whole number, default `200`). Edit the `Provider performance` dataset and change the HAVING line to:
    ```sql
-   SELECT DATE_TRUNC('month', e.admit_date) AS month,
-          f.region,
-          COUNT(*)                                       AS encounters,
-          ROUND(100.0*SUM(e.mortality_flag)/COUNT(*), 2) AS mortality_rate_pct
+   HAVING COUNT(*) >= :min_encounters
+   ```
+   Bind the parameter widget. Now the whole scorecard re-thresholds live as you change the value.
+2. **Benchmark vs peer group** (window over a grouped aggregate). Dataset `Facility vs region`:
+   ```sql
+   SELECT f.region, f.facility_name,
+          ROUND(AVG(e.readmitted_30d)*100,1) AS rate_pct,
+          ROUND(AVG(e.readmitted_30d)*100
+                - AVG(AVG(e.readmitted_30d)*100) OVER (PARTITION BY f.region),1) AS vs_region_avg_pts
    FROM demo.selecthealth_workshop.fact_encounters e
    JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
-   GROUP BY 1, 2
+   GROUP BY f.region, f.facility_name
    ```
-2. Add a **Line** visualization: X = `month`, Y = `encounters`, color/series = `region`.
-   Title: "Monthly encounter volume by region".
-3. Add a **Filter** widget on `region`, and a **Date range** filter on `admit_date`. Select a region
-   and watch every bound widget update.
-4. **Cross-filtering:** click a bar in your facility chart. Notice the other widgets filter to match
-   (this is like a Tableau dashboard action, with no setup).
-5. **Drill-down:** on a chart, add the hierarchy `region` then `facility_name` then `provider_name`.
-   Click to drill down a level at a time.
+   Table with conditional formatting on `vs_region_avg_pts` (diverging red/green around 0): instantly
+   shows which facilities run hot or cold versus their region.
+3. **Heatmap.** Dataset `Category x region`:
+   ```sql
+   SELECT d.clinical_category, f.region,
+          ROUND(AVG(e.complication_flag)*100,1) AS comp_rate_pct, COUNT(*) AS enc
+   FROM demo.selecthealth_workshop.fact_encounters e
+   JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
+   JOIN demo.selecthealth_workshop.dim_diagnosis d ON e.primary_icd10_code = d.icd10_code
+   GROUP BY d.clinical_category, f.region
+   ```
+   Add a **Heatmap**: x = `region`, y = `clinical_category`, color = `comp_rate_pct`.
+4. **Map.** Dataset `By state`:
+   ```sql
+   SELECT f.state, COUNT(*) AS enc, ROUND(AVG(e.readmitted_30d)*100,1) AS readmit_rate_pct
+   FROM demo.selecthealth_workshop.fact_encounters e
+   JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
+   GROUP BY f.state
+   ```
+   Add a **Choropleth map** keyed on `state`, colored by `readmit_rate_pct`.
+5. **Pivot table.** Add a **Pivot** on the encounters: rows = `clinical_category`, columns =
+   `encounter_type`, value = count. (Use a dataset that selects those three plus the flags.)
+6. **Interactivity.** Add a **Filter** on `region` and a **Date range** on `admit_date`; click a mark to
+   **cross-filter** every linked widget; add a `region` > `facility_name` > `provider_name` **drill**
+   hierarchy on a chart.
 
-> **Notice:** filters, cross-filtering, and drill are mostly default behavior here.
+> **Honest trade-off:** Tableau is still ahead on a few things here - very fine-grained reference
+> lines/bands, some niche chart types, and certain LOD nuances. The counter that matters for you: any
+> analytic you can express in SQL is first-class (window functions, `QUALIFY`, percentiles,
+> parameters), and you can always drop to SQL, so you are rarely boxed in.
 
 ---
 
