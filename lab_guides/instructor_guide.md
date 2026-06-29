@@ -45,7 +45,10 @@ rabbit-hole. Carla wants an honest assessment she can take back to advise other 
 - [ ] All 3 attendees can log into the workspace and have SELECT on `demo.selecthealth_workshop`.
 - [ ] A SQL warehouse (serverless or pro) is running, or set to auto-start.
 - [ ] Dashboard imported (`dashboard/selecthealth_workshop.lvdash.json`) and every widget renders.
-- [ ] Genie space created and answers the knee-replacement question once (to warm it).
+- [ ] Confirm you can publish a dashboard and create a Genie space from it in this workspace
+      (so the live Day-1 flow works), and have the paste-in instructions block handy.
+- [ ] (Backup) Pre-built standalone Genie space created and answers the knee-replacement question,
+      in case the live publish step hiccups.
 - [ ] Slide deck open and ready to present.
 - [ ] Decide: do attendees each clone the starter dashboard, or build their own from scratch?
       (Recommended: build their own on Day 1 so they learn the authoring flow; reference the
@@ -165,28 +168,44 @@ governed definition layer (the Tableau published-data-source parity story).
 
 ---
 
-## Segment 4 - Build with Genie: ask your data in plain language (3:05-3:40)
+## Segment 4 - Publish your dashboard and stand up its Genie space (3:05-3:40)
 
-**Goal:** Hands-on Genie. This is the "consumption is changing" centerpiece, and the best segment
-for the skeptic.
+**Goal:** Each analyst publishes the dashboard they just built, creates a Genie space directly from
+it, pastes in a short instructions block, and asks a few questions. This is the centerpiece: it shows
+how AI/BI and Genie connect, and how little it takes to get a good Genie space when the data is well
+documented. Best segment for the skeptic.
 
-**Do (Workbook Part 4):**
-1. Open the pre-built Genie space (`workshop_assets.md` for the link).
-2. Let the **attendees drive**. Have them ask the sample questions, then their own:
+**Say:** "You just built a dashboard. Watch how fast we can turn that into a Genie space anyone can
+ask questions of. The reason it works so well, with almost no setup, is that this data is fully
+documented: every column has a description and the table relationships are defined, so Genie already
+knows how to join things. We just add a few instructions on top."
+
+**Do (Workbook Part 4) - everyone on their own dashboard:**
+1. **Publish** your dashboard (top-right **Publish**).
+2. From the dashboard, **create a Genie space from it** (the Genie / "Create Genie space" control on
+   the dashboard). This generates a space using your dashboard's data.
+3. Open the new Genie space, go to **Instructions**, and **paste the prepared instructions block**
+   (in `genie/genie_space_config.md`, also pre-shared in the Workbook). Save.
+4. Let the **attendees drive**. Have them ask a few:
    - "How many encounters were there in 2024 by region?"
-   - "Which providers have the highest 30-day readmission rate, minimum 200 encounters?"
-   - "What's the average length of stay for knee replacements?"
-3. For each answer, click **Show generated code** so they see the Databricks SQL.
+   - "Which providers have the highest 30-day readmission rate, with at least 200 encounters?"
+   - "What is the average length of stay for a knee replacement?"
+5. On each answer, click **Show generated code** so they see the Databricks SQL.
 
 **Point out (skeptic-focused):**
-- "Genie writes Databricks SQL. This is a fast way to see the right dialect and functions when you
-  translate what you already write." (Directly addresses the skeptic's stated use: SQL dialect help.)
-- Trust and governance: the **Trusted** badge, the end-user feedback options (**Yes / Fix it /
-  Request review**), the **Analysis** view, and that Genie only sees tables you grant.
-- "You don't have to trust a black box. Every answer comes with the SQL, and you can correct it."
+- The quality comes from the **column comments and foreign keys** (already in the data) plus the short
+  instructions block, not heavy configuration. Open a table in Catalog and show the comments + the
+  PK/FK if they are curious.
+- "Genie writes Databricks SQL, so it's a fast way to see the right dialect and functions when you
+  translate what you already write." (The skeptic's stated use.)
+- Trust and governance: the end-user feedback options (**Yes / Fix it / Request review**), the
+  **Analysis** view, and that Genie only sees tables you grant.
 
-**Watch for:** if Genie gets one wrong, that's a feature, not a failure. Use **Fix it** to show the
-human-in-the-loop loop. Do not hide it.
+**Watch for:**
+- If the publish-to-Genie step misbehaves for someone, fall back to the **pre-built standalone Genie
+  space** (`workshop_assets.md`) so the segment keeps moving.
+- If Genie gets one wrong, that's a feature, not a failure. Use **Fix it** to show the human-in-the-loop
+  loop. Do not hide it.
 
 ---
 

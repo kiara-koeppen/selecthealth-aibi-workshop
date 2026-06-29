@@ -35,7 +35,7 @@ generate_workshop_data.py  ──►  Unity Catalog (demo.selecthealth_workshop)
                                          source" parity)
 ```
 
-The dataset is a star schema centered on `fact_encounters`. Outcomes (readmission, mortality, complication) are condition-dependent so dashboards show meaningful variation across diagnoses, providers, and facilities.
+The dataset is a star schema centered on `fact_encounters`. Outcomes (readmission, mortality, complication) are condition-dependent so dashboards show meaningful variation across diagnoses, providers, and facilities. It ships **fully documented**: every table has a description, every column has a comment, and primary/foreign keys are defined, so Genie and the AI/BI Assistant auto-join the tables and answer well with minimal instructions.
 
 ## Prerequisites
 

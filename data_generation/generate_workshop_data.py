@@ -316,27 +316,122 @@ print(f"fact_encounters written: {fact.count():,} rows")
 # MAGIC %md
 # MAGIC ## Add table + column comments (helps Genie + AI/BI Assistant)
 # MAGIC Good comments make Genie answers and AI-assisted dashboard authoring noticeably better.
+# MAGIC Every column is commented, not just a few.
 
 # COMMAND ----------
 
-spark.sql("COMMENT ON TABLE fact_encounters IS 'One row per patient encounter (inpatient, outpatient, or emergency). Central fact table for the SelectHealth AI/BI workshop. Synthetic data, no PHI.'")
-spark.sql("COMMENT ON TABLE dim_provider IS 'Providers (physicians) with specialty and primary facility.'")
-spark.sql("COMMENT ON TABLE dim_facility IS 'Hospitals and clinics with type, city, state, and region.'")
-spark.sql("COMMENT ON TABLE dim_diagnosis IS 'ICD-10 diagnosis codes with plain-language descriptions and clinical category.'")
-spark.sql("COMMENT ON TABLE dim_procedure IS 'Procedure codes (CPT-style) with descriptions and category.'")
+TABLE_COMMENTS = {
+    "fact_encounters": "One row per patient encounter (inpatient, outpatient, or emergency). Central fact table for the SelectHealth AI/BI workshop. Synthetic data, no PHI.",
+    "dim_provider": "Providers (physicians) with specialty and primary facility. One row per provider.",
+    "dim_facility": "Hospitals and clinics with type, city, state, and region. One row per facility.",
+    "dim_diagnosis": "ICD-10 diagnosis codes with plain-language descriptions and clinical category. One row per code.",
+    "dim_procedure": "Procedure codes (CPT-style) with descriptions and category. One row per code.",
+}
 
-for col, comment in {
-    "readmitted_30d": "1 if the patient was readmitted within 30 days of discharge, else 0",
-    "mortality_flag": "1 if the patient died during the encounter, else 0",
-    "complication_flag": "1 if a complication occurred during the encounter, else 0",
-    "length_of_stay_days": "Number of days between admit and discharge",
-    "total_charges": "Total billed charges in USD",
-    "total_paid": "Total amount paid in USD",
-}.items():
-    safe_comment = comment.replace("'", "''")  # escape quotes so comments stay valid SQL
-    spark.sql(f"ALTER TABLE fact_encounters ALTER COLUMN {col} COMMENT '{safe_comment}'")
+COLUMN_COMMENTS = {
+    "fact_encounters": {
+        "encounter_id": "Primary key. Unique identifier for the encounter.",
+        "patient_id": "Synthetic patient identifier (a patient can have multiple encounters).",
+        "provider_id": "Foreign key to dim_provider. The attending provider.",
+        "facility_id": "Foreign key to dim_facility. Where the encounter happened.",
+        "primary_icd10_code": "Foreign key to dim_diagnosis. Primary ICD-10 diagnosis code.",
+        "primary_procedure_code": "Foreign key to dim_procedure. Primary procedure code (NONE if no procedure).",
+        "encounter_type": "Encounter setting: Inpatient, Outpatient, or Emergency.",
+        "payer_type": "Payer category: Commercial, Medicare, Medicaid, or Self-Pay.",
+        "admit_date": "Date the patient was admitted or seen.",
+        "discharge_date": "Date the patient was discharged (same day as admit for outpatient).",
+        "length_of_stay_days": "Number of days between admit and discharge.",
+        "patient_age": "Patient age in years at the time of the encounter.",
+        "patient_sex": "Patient sex: F or M.",
+        "total_charges": "Total billed charges in USD.",
+        "total_paid": "Total amount paid in USD.",
+        "readmitted_30d": "1 if the patient was readmitted within 30 days of discharge, else 0.",
+        "mortality_flag": "1 if the patient died during the encounter, else 0.",
+        "complication_flag": "1 if a complication occurred during the encounter, else 0.",
+        "complication_type": "Type of complication when complication_flag = 1, else null.",
+    },
+    "dim_provider": {
+        "provider_id": "Primary key. Unique identifier for the provider.",
+        "npi": "10-digit National Provider Identifier (synthetic).",
+        "provider_name": "Provider display name.",
+        "specialty": "Clinical specialty (e.g., Cardiology, Orthopedic Surgery).",
+        "primary_facility_id": "Foreign key to dim_facility. The provider's primary facility.",
+    },
+    "dim_facility": {
+        "facility_id": "Primary key. Unique identifier for the facility.",
+        "facility_name": "Hospital or clinic name.",
+        "facility_type": "Facility type (e.g., Inpatient Hospital, Outpatient Clinic).",
+        "city": "City where the facility is located.",
+        "state": "Two-letter state code.",
+        "region": "Business region grouping for the facility.",
+    },
+    "dim_diagnosis": {
+        "icd10_code": "Primary key. ICD-10 diagnosis code.",
+        "icd10_description": "Plain-language description of the diagnosis.",
+        "clinical_category": "Clinical grouping (e.g., Cardiovascular, Orthopedic, Oncology).",
+    },
+    "dim_procedure": {
+        "procedure_code": "Primary key. CPT-style procedure code (NONE means no procedure).",
+        "procedure_description": "Plain-language description of the procedure.",
+        "procedure_category": "Procedure grouping (e.g., Orthopedic Surgery, Cardiac Procedure).",
+    },
+}
 
-print("Comments applied. Dataset ready.")
+for tbl, comment in TABLE_COMMENTS.items():
+    spark.sql(f"COMMENT ON TABLE {tbl} IS '{comment.replace(chr(39), chr(39)*2)}'")
+for tbl, cols in COLUMN_COMMENTS.items():
+    for col, comment in cols.items():
+        safe = comment.replace("'", "''")  # escape quotes so comments stay valid SQL
+        spark.sql(f"ALTER TABLE {tbl} ALTER COLUMN {col} COMMENT '{safe}'")
+
+print("Comments applied to all tables and columns.")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Add primary key and foreign key relationships
+# MAGIC These are informational (RELY) constraints in Unity Catalog. They are not enforced at
+# MAGIC write time, but Genie and the AI/BI Assistant use them to join tables automatically and
+# MAGIC to understand the star schema. Primary-key columns must be NOT NULL first.
+
+# COMMAND ----------
+
+# 1) Make key columns NOT NULL (required before a PRIMARY KEY can be added).
+NOT_NULL = {
+    "dim_provider": "provider_id",
+    "dim_facility": "facility_id",
+    "dim_diagnosis": "icd10_code",
+    "dim_procedure": "procedure_code",
+    "fact_encounters": "encounter_id",
+}
+for tbl, col in NOT_NULL.items():
+    spark.sql(f"ALTER TABLE {tbl} ALTER COLUMN {col} SET NOT NULL")
+
+# 2) Primary keys (drop-if-exists pattern keeps the notebook re-runnable).
+PRIMARY_KEYS = {
+    "dim_provider": ("pk_dim_provider", "provider_id"),
+    "dim_facility": ("pk_dim_facility", "facility_id"),
+    "dim_diagnosis": ("pk_dim_diagnosis", "icd10_code"),
+    "dim_procedure": ("pk_dim_procedure", "procedure_code"),
+    "fact_encounters": ("pk_fact_encounters", "encounter_id"),
+}
+for tbl, (name, col) in PRIMARY_KEYS.items():
+    spark.sql(f"ALTER TABLE {tbl} DROP CONSTRAINT IF EXISTS {name}")
+    spark.sql(f"ALTER TABLE {tbl} ADD CONSTRAINT {name} PRIMARY KEY ({col})")
+
+# 3) Foreign keys (fact -> dims, and provider -> facility).
+FOREIGN_KEYS = [
+    ("fact_encounters", "fk_enc_provider",  "provider_id",            "dim_provider",  "provider_id"),
+    ("fact_encounters", "fk_enc_facility",  "facility_id",            "dim_facility",  "facility_id"),
+    ("fact_encounters", "fk_enc_diagnosis", "primary_icd10_code",     "dim_diagnosis", "icd10_code"),
+    ("fact_encounters", "fk_enc_procedure", "primary_procedure_code", "dim_procedure", "procedure_code"),
+    ("dim_provider",    "fk_provider_facility", "primary_facility_id", "dim_facility", "facility_id"),
+]
+for tbl, name, col, ref_tbl, ref_col in FOREIGN_KEYS:
+    spark.sql(f"ALTER TABLE {tbl} DROP CONSTRAINT IF EXISTS {name}")
+    spark.sql(f"ALTER TABLE {tbl} ADD CONSTRAINT {name} FOREIGN KEY ({col}) REFERENCES {ref_tbl} ({ref_col})")
+
+print("Primary keys and foreign keys applied. Dataset fully documented and ready.")
 
 # COMMAND ----------
 

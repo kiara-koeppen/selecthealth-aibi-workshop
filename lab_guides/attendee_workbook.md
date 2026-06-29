@@ -114,20 +114,59 @@ Everything lives in `demo.selecthealth_workshop`:
 
 ---
 
-## Part 4 - Build with Genie: ask your data in plain language
+## Part 4 - Publish your dashboard and turn it into a Genie space
 
-1. Open the workshop **Genie space** (your instructor will share the link).
-2. Ask a few questions. Try these, then your own:
+Now the fun part. You will publish the dashboard you just built, spin up a Genie space directly from
+it, give it a few instructions, and ask questions in plain language.
+
+1. **Publish** your dashboard (the **Publish** button, top right).
+2. From your dashboard, **create a Genie space from it** (use the Genie / "Create Genie space" control
+   on the dashboard). This builds a Genie space on your dashboard's data.
+3. Open the new Genie space and find the **Instructions** area. **Paste in** the instructions block
+   your instructor shares (it is also below). Save.
+
+   <details><summary>Instructions block to paste</summary>
+
+   ```
+   This Genie space answers questions about synthetic hospital encounters. There is no PHI.
+
+   Data model:
+   - fact_encounters is the central fact table, one row per patient encounter.
+   - Join to dim_provider on provider_id, dim_facility on facility_id,
+     dim_diagnosis on primary_icd10_code = icd10_code, and dim_procedure on
+     primary_procedure_code = procedure_code. (These foreign keys are already defined.)
+
+   Metric definitions (express all rates as a percentage from 0 to 100):
+   - Readmission rate = AVG(readmitted_30d) * 100
+   - Mortality rate = AVG(mortality_flag) * 100
+   - Complication rate = AVG(complication_flag) * 100
+   - Average length of stay = AVG(length_of_stay_days), in days
+
+   Conventions:
+   - When ranking providers or facilities by a rate, only include those with at least
+     200 encounters unless the user asks otherwise.
+   - Show plain-language names in results (provider_name, facility_name, region,
+     clinical_category, procedure_description), not the id columns.
+   - "knee replacement" means primary_procedure_code = '27447'.
+   - Round rates to one decimal place and currency to whole dollars.
+   ```
+   </details>
+
+4. Ask a few questions. Try these, then your own:
    - "How many encounters were there in 2024 by region?"
    - "Which providers have the highest 30-day readmission rate, with at least 200 encounters?"
-   - "What's the average length of stay for knee replacements?"
-3. On any answer, click **Show generated code** to see the Databricks SQL Genie wrote.
+   - "What is the average length of stay for a knee replacement?"
+5. On any answer, click **Show generated code** to see the Databricks SQL Genie wrote.
 
-> **For the SQL folks:** Genie is a fast way to see the correct Databricks SQL syntax and functions
-> when you're translating from what you write today. You can copy that SQL and build on it.
+> **Why this is so quick:** the dataset is fully documented (every column has a description and the
+> table relationships are defined), so Genie already knows how to join the tables. You only add a few
+> instructions on top.
 >
-> **Trust:** every answer shows its SQL, Genie only sees tables you've been granted, and you can give
-> feedback (Yes / Fix it / Request review). It's a fast first draft, not a black box.
+> **For the SQL folks:** Genie writes Databricks SQL, so it is a fast way to see the correct syntax and
+> functions when you translate from what you write today. Copy it and build on it.
+>
+> **Trust:** every answer shows its SQL, Genie only sees tables you have been granted, and you can give
+> feedback (Yes / Fix it / Request review). It is a fast first draft, not a black box.
 
 ---
 
