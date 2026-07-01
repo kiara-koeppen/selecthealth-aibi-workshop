@@ -39,9 +39,11 @@ An AI/BI dashboard has two tabs at the top, and this trips everyone up at first:
 
 - Go to the **Canvas** tab.
 - Click **Add a visualization** and draw the box on the canvas.
-- In the config panel on the right: pick the **Dataset**, then the **Visualization** type (table, bar, line, combo, heatmap, map, pivot, counter), then choose which fields to show.
+- In the config panel on the right, set three things: the **Dataset** (which data), the **Visualization** type (table, bar, line, combo, heatmap, map, pivot, counter), and the **fields** (which columns go on the X axis, Y axis, color, rows, columns, or values). Each step below tells you exactly which fields to place where.
 
 That's it. Everywhere below where it says "add a table" or "add a combo chart," that means this same loop.
+
+> Note: field-well labels can differ slightly by visualization (X/Y for charts, Rows/Columns/Values for pivots and tables). If a label looks different, match it to the intent described.
 
 ---
 
@@ -83,12 +85,15 @@ SELECT provider_name, specialty, enc,
 FROM prov
 ```
 
-**Step 3 · Put it on the canvas as a table.**
+**Step 3 · Put it on the canvas as a table (provider scorecard).**
 
 - Go to the **Canvas** tab and click **Add a visualization**.
-- In the config panel: set **Dataset** = `Provider performance`, and **Visualization** = **Table**.
-- The table shows your dataset columns. In the table's settings, add **conditional formatting** to color `readmit_quartile` (or `readmit_rate_pct`) on a red-to-green scale.
-- That's your provider scorecard: ranked and risk-binned, with no table-calc plumbing.
+- **Dataset:** `Provider performance`. **Visualization:** Table.
+- **Columns to show, left to right:** `provider_name`, `specialty`, `enc`, `readmit_rate_pct`, `comp_rate_pct`, `avg_los_days`, `readmit_pctile`, `readmit_quartile`. (Remove any columns you don't want; drag to reorder.)
+- **Rename headers** for readability, e.g. Provider, Specialty, Encounters, Readmit %, Complication %, Avg LOS (days), Readmit percentile, Quartile.
+- **Sort:** `readmit_rate_pct` descending (worst readmission at top).
+- **Conditional formatting:** color `readmit_quartile` on a scale where 1 is green and 4 is red (quartile 1 = lowest readmission = best; quartile 4 = highest = worst). Or apply a red-to-green color scale directly on `readmit_rate_pct`.
+- Result: a ranked, risk-binned provider scorecard, with no table-calc plumbing.
 
 **Step 4 · Create the `Outcome trend` dataset and add a combo chart.** This is period-over-period with a rolling average (LAG + a windowed AVG).
 
@@ -111,14 +116,18 @@ SELECT month, encounters,
 FROM m
 ```
 
-- **Canvas** tab → **Add a visualization** → **Dataset** = `Outcome trend`, **Visualization** = **Combo**.
-- Set bars = `encounters` and a line = `rolling_3mo` on a second axis. Optionally add `yoy_pct` as a second line or a small separate chart.
+- **Canvas** tab → **Add a visualization**. **Dataset:** `Outcome trend`. **Visualization:** Combo (bar + line).
+- **X axis:** `month`.
+- **Bars (left/primary Y):** `encounters`.
+- **Line (right/secondary Y):** `rolling_3mo`.
+- **Optional second line:** `yoy_pct` (it's a percent, so keep it on the secondary axis or put it in its own small chart).
+- **Sort:** X axis ascending by `month`.
 
 **Step 5 · Add calculated fields (no code).** You don't have to do everything in SQL.
 
-- On a dataset (Data tab), add a **calculated measure** with a formula, for example a paid-to-charge ratio: `SUM(total_paid) / SUM(total_charges)`.
+- On the `Provider performance` dataset (or any dataset), in the **Data** tab, add a **calculated measure** with a formula, for example a paid-to-charge ratio: `SUM(total_paid) / SUM(total_charges)`. (Use a dataset that carries `total_paid` and `total_charges` if you want this one, e.g. build it on `fact_encounters`.)
 - Add a **calculated dimension** that bins a field, for example an age band: `CASE WHEN patient_age < 40 THEN '<40' WHEN patient_age < 65 THEN '40-64' ELSE '65+' END`.
-- Use them in any visual. They recompute automatically as filters change.
+- Use them in any visual (as a column, axis, or color). They recompute automatically as filters change.
 
 > **Tableau translation:** `PERCENT_RANK` / `NTILE` replace your rank table calcs; `LAG` and the windowed `AVG` replace the running/difference table calcs and the trailing-average trick; the calculated measure/dimension is your calculated field. They live in the dataset, governed and reusable, instead of per-worksheet.
 
@@ -126,18 +135,18 @@ FROM m
 
 ## Part 2 - Advanced visuals, parameters, and benchmarks
 
-Same loop as before (Data tab to define, Canvas tab to visualize). This part adds interactivity and the richer chart types.
+Same loop as before (Data tab to define, Canvas tab to visualize). This part adds interactivity and the richer chart types. Each step lists exactly which fields to place where.
 
 **Step 1 · Parameterized widget (like a Tableau parameter).**
 
-- Add a dashboard **parameter** named `min_encounters` (whole number, default `200`).
-- Edit the `Provider performance` dataset and change the HAVING line to use it:
+- Add a dashboard **parameter** named `min_encounters` (type: whole number, default `200`).
+- Edit the `Provider performance` dataset and change the HAVING line to reference it:
 
 ```sql
 HAVING COUNT(*) >= :min_encounters
 ```
 
-- Bind the parameter widget on the canvas. Now the whole scorecard re-thresholds live as you change the value.
+- Add the **parameter widget** to the canvas and bind it to `min_encounters`. Now the scorecard table re-thresholds live as you change the value.
 
 **Step 2 · Benchmark vs peer group (a window over a grouped aggregate).**
 
@@ -153,7 +162,10 @@ JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
 GROUP BY f.region, f.facility_name
 ```
 
-- Add a **Table** on it (Canvas → Add a visualization → Dataset = `Facility vs region` → Table). Apply diverging conditional formatting on `vs_region_avg_pts` (red below 0, green above): instantly shows which facilities run hot or cold versus their region.
+- **Add a visualization.** **Dataset:** `Facility vs region`. **Visualization:** Table.
+- **Columns, left to right:** `region`, `facility_name`, `rate_pct`, `vs_region_avg_pts`.
+- **Sort:** `vs_region_avg_pts` descending.
+- **Conditional formatting:** diverging scale on `vs_region_avg_pts` centered at 0. Since higher readmission is worse, color positive values (above the region average) red and negative values (below the region average) green. Instantly shows which facilities run hot or cold versus their region.
 
 **Step 3 · Heatmap.**
 
@@ -168,7 +180,11 @@ JOIN demo.selecthealth_workshop.dim_diagnosis d ON e.primary_icd10_code = d.icd1
 GROUP BY d.clinical_category, f.region
 ```
 
-- Add a **Heatmap** (Canvas → Add a visualization → Dataset = `Category x region` → Heatmap): x = `region`, y = `clinical_category`, color = `comp_rate_pct`.
+- **Add a visualization.** **Dataset:** `Category x region`. **Visualization:** Heatmap.
+- **X axis (columns):** `region`.
+- **Y axis (rows):** `clinical_category`.
+- **Color:** `comp_rate_pct` (darker = higher complication rate).
+- **Tooltip (optional):** `enc`.
 
 **Step 4 · Map.**
 
@@ -181,11 +197,26 @@ JOIN demo.selecthealth_workshop.dim_facility f USING (facility_id)
 GROUP BY f.state
 ```
 
-- Add a **Choropleth map** keyed on `state`, colored by `readmit_rate_pct`.
+- **Add a visualization.** **Dataset:** `By state`. **Visualization:** Choropleth map (US states).
+- **Location / geography:** `state` (two-letter state code).
+- **Color:** `readmit_rate_pct`.
+- **Tooltip (optional):** `enc`.
 
 **Step 5 · Pivot table.**
 
-- Add a **Pivot** visualization on the encounters: rows = `clinical_category`, columns = `encounter_type`, value = count of encounters. (Point it at a dataset that selects those fields, or reuse one that has them.)
+- **Data** tab → **Create from SQL** → name it `Category x encounter type`.
+
+```sql
+SELECT d.clinical_category, e.encounter_type, COUNT(*) AS enc
+FROM demo.selecthealth_workshop.fact_encounters e
+JOIN demo.selecthealth_workshop.dim_diagnosis d ON e.primary_icd10_code = d.icd10_code
+GROUP BY d.clinical_category, e.encounter_type
+```
+
+- **Add a visualization.** **Dataset:** `Category x encounter type`. **Visualization:** Pivot.
+- **Rows:** `clinical_category`.
+- **Columns:** `encounter_type`.
+- **Values:** `enc` (aggregate: Sum).
 
 **Step 6 · Forecasting and AI functions.** Project the next six months of volume with the built-in `ai_forecast` function.
 
@@ -203,21 +234,25 @@ SELECT ds, NULL, y_forecast, y_lower, y_upper
 FROM AI_FORECAST(TABLE(monthly), horizon => '2026-06-01', time_col => 'ds', value_col => 'y')
 ```
 
-- Add a **Line** chart plotting `encounters` and `forecast`, with `lower`/`upper` as a band. Other built-in AI functions you can call the same way in SQL: `ai_query`, `ai_classify`, `ai_extract`, `ai_summarize`.
+- **Add a visualization.** **Dataset:** `Volume forecast`. **Visualization:** Line.
+- **X axis:** `ds`.
+- **Lines (Y):** `encounters` (actuals) and `forecast` (projection). The actuals line stops where the forecast begins, which is expected.
+- **Confidence band (optional):** `lower` and `upper` as a shaded range around `forecast`.
+- Other built-in AI functions you can call the same way in SQL: `ai_query`, `ai_classify`, `ai_extract`, `ai_summarize`.
 
 **Step 7 · Interactivity: filters, cross-filtering, drill.**
 
-- Add a **Filter** widget on `region` and a **Date range** filter on `admit_date` (Canvas → Add a visualization → choose Filter). Selecting a value updates every bound widget.
-- **Cross-filter:** click a mark in any chart and watch the other widgets filter to match (like a Tableau dashboard action, no setup).
+- **Filter widget:** Add a visualization → choose **Filter**. Set the field to `region`, and connect it to the widgets whose datasets contain `region` (the `Facility vs region` table and the `Category x region` heatmap). Selecting a region updates those widgets.
+- **Cross-filter:** click a bar, cell, or row in any chart and watch the other widgets on the page filter to match (like a Tableau dashboard action, no setup).
 - **Drill-down:** on a chart, add a hierarchy `region` then `facility_name` then `provider_name`, and click to drill a level at a time.
 
 **Step 8 · Multipage reporting.**
 
-- Use the **page tabs** at the top of the canvas to split the dashboard into pages, for example **Overview** (KPIs + trend + forecast), **Provider performance** (the scorecard + parameter), and **Geography** (map + region benchmark). Filters can be shared across pages.
+- Use the **page tabs** at the top of the canvas (next to the current page name) to add pages, then drag widgets onto each. Suggested split: **Overview** (KPIs + trend + forecast), **Provider performance** (the scorecard + parameter), and **Geography** (map + region benchmark). Filters can be shared across pages.
 
 **Step 9 · Themes (optional).**
 
-- Under dashboard settings you can apply a **theme** (colors, fonts) for a branded look. We're not focusing on branding today, but it's there for when you share externally.
+- In dashboard settings you can apply a **theme** (colors, fonts) for a branded look. We're not focusing on branding today, but it's there for when you share externally.
 
 > **Honest trade-off:** Tableau is still ahead on a few things: very fine-grained reference lines/bands, some niche chart types, and certain LOD nuances. The counter that matters for you: rich interactive visuals, cross-filtering, drilling, parameters, calculated fields, forecasting, and multipage reports are all here, and anything you can express in SQL is first-class, so you're rarely boxed in.
 
@@ -227,7 +262,7 @@ FROM AI_FORECAST(TABLE(monthly), horizon => '2026-06-01', time_col => 'ds', valu
 
 **Step 1 · AI-assisted authoring.**
 
-- On the dashboard, open the **Assistant** (the sparkle icon) and type a plain-English request, for example "Show average length of stay by specialty as a bar chart," or "Add a chart of complication rate by clinical category."
+- On the canvas, click **Add a visualization**, then use the **Assistant** (the sparkle icon) and type a plain-English request, for example "Show average length of stay by specialty as a bar chart," or "Complication rate by clinical category."
 - Accept the result, then tweak it. You can open and edit the underlying SQL if you want exact control.
 
 **Step 2 · Metric views (the semantic layer).**
@@ -306,7 +341,7 @@ Jot down, for the wrap-up:
 
 # DAY 2 - Build your own scenario
 
-Pick a scenario (yours, or one below) and build it. Instructors will float to help. Aim for something you can show the group in a few minutes. Same loop as Day 1: define a dataset on the Data tab, then add visualizations on the Canvas.
+Pick a scenario (yours, or one below) and build it. Instructors will float to help. Aim for something you can show the group in a few minutes. Same loop as Day 1: define a dataset on the Data tab, then add visualizations on the Canvas (set Dataset, Visualization type, and fields).
 
 **Starter scenarios:**
 
@@ -326,3 +361,5 @@ Pick a scenario (yours, or one below) and build it. Instructors will float to he
 - A question in Genie, with the SQL revealed.
 
 **Share-out:** be ready to show what you built, what surprised you, and your honest read on where this fits versus Tableau.
+
+**A scatter tip (for cost vs. outcome):** set the X axis to one measure (e.g. `avg_paid`), the Y axis to the other (e.g. `readmit_rate`), and the point label to `facility_name`.
