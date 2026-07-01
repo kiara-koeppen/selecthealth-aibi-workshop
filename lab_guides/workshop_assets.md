@@ -11,7 +11,7 @@ for reference and dry-runs; those IDs are listed below and only work in `kk_test
 - **Agenda + Setup (send to Carla):** https://docs.google.com/document/d/1kd7ARcb3Xtx9ogEvGm8j4InukW2VVoO-Z5XRst6nkOs/edit
 - **Agenda (internal):** https://docs.google.com/document/d/1r2KBrJA35y4f2H9i0cVdtI0KnW4uUZIC7ihB-tVvVXI/edit
 - **Instructor Guide:** https://docs.google.com/document/d/1SKbv9KubfYsTEgilbNmS3PRx5IYWZJGQwJEjPuNsf3I/edit
-- **Attendee Workbook:** https://docs.google.com/document/d/1nYxTj_d4W4IkSz1FVNxbWCqTfIwCoI9iFCQ0h2-Y7Nw/edit
+- **Attendee Workbook:** https://docs.google.com/document/d/185wu7M_qBBJdsCMaaqIZ9aJ934L-GzcRiJvaasXmpRw/edit
 - **Orientation slides:** https://docs.google.com/presentation/d/1bWSTUCplBXFdBKu8kF4qaiSaCB16jETksaXzSzspkJc/edit
   (10 slides, standard layouts - not Databricks-branded, since the corporate template
   was not accessible; apply the brand theme in Slides if you want it branded.)
