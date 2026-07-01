@@ -10,7 +10,7 @@ for reference and dry-runs; those IDs are listed below and only work in `kk_test
 ## Facilitator materials (Google)
 - **Agenda + Setup (send to Carla):** https://docs.google.com/document/d/1kd7ARcb3Xtx9ogEvGm8j4InukW2VVoO-Z5XRst6nkOs/edit
 - **Agenda (internal):** https://docs.google.com/document/d/1r2KBrJA35y4f2H9i0cVdtI0KnW4uUZIC7ihB-tVvVXI/edit
-- **Instructor Guide:** https://docs.google.com/document/d/1SKbv9KubfYsTEgilbNmS3PRx5IYWZJGQwJEjPuNsf3I/edit
+- **Instructor Guide:** https://docs.google.com/document/d/1UgSsS5Se8_bz3Q57xi8DRcDXjR5FKhan6pHd2Tp5hqQ/edit
 - **Attendee Workbook:** https://docs.google.com/document/d/1kei9sFO3WiUJyr1O_rblX5MA2YBIf88UUiSmDALYkis/edit
 - **Orientation slides:** https://docs.google.com/presentation/d/1bWSTUCplBXFdBKu8kF4qaiSaCB16jETksaXzSzspkJc/edit
   (10 slides, standard layouts - not Databricks-branded, since the corporate template

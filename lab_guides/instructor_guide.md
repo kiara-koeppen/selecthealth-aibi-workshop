@@ -272,6 +272,21 @@ dashboards). Kiara and Clint float. Starter scenarios are in the Attendee Workbo
 
 ---
 
+## Migrating an existing Tableau dashboard (if Carla or the analysts ask)
+
+Be accurate and do not over-promise a product button.
+
+- **There is no GA, self-serve "upload your Tableau workbook, get an AI/BI dashboard" feature today.** Don't imply one exists.
+- **The reliable path, and what we do on Day 2, is an assistant-assisted rebuild.** Point the AI/BI Assistant at a good wide dataset and it gets you most of the way fast for a standard dashboard. This is Marcin's "take one of their dashboards and rebuild it" idea, and it does not depend on any experimental tooling.
+- **Internal migration tooling exists, but it is FE-run, not customer DIY:**
+  - **TeleportBI** converts Tableau workbook (.twb) files to AI/BI dashboard JSON (.lvdash.json), with a validation framework. Experimental (engineering sandbox), Tableau-first.
+  - **Genie Code migration agents:** emerging in-editor agents for Power BI and Tableau migration.
+  - The most mature tool today is **Power BI only** (DAX to SQL, semantic model to metric views plus a Lakeview dashboard), so it does not cover Tableau yet.
+- **How to frame it to Carla:** "Databricks has migration tooling, and we can convert your Tableau content as a follow-on." Then loop in FE to run TeleportBI or the Genie Code agents with a Databricks person driving. Keep it a follow-on engagement, not a live workshop deliverable.
+- Internal references: TeleportBI (Confluence `/spaces/UN/pages/5353505269`), Power BI tool (`/spaces/FE/pages/6178669940`).
+
+---
+
 ## Appendix - Anticipated questions and answers
 
 - **"Can this fully replace Tableau?"** "Not one-to-one, and that's not the goal. It replaces a lot of
